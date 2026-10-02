@@ -238,28 +238,26 @@ public class AddProviderScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        extractBackground(context, mouseX, mouseY, delta);
+        // Background is extracted by the game separately — do not call extractBackground here
         super.extractRenderState(context, mouseX, mouseY, delta);
 
         int centerX = this.width / 2;
+        int textColor = 0xFFFFFFFF; // ARGB; 0xFFFFFF has alpha 0 and is invisible
 
-        // 标题
         context.centeredText(this.font,
                 Component.translatable("aibuilder.add.title").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
-                centerX, 12, 0xFFFFFF);
+                centerX, 12, textColor);
 
-        // 步骤提示
         if (selectedProvider == null) {
             context.centeredText(this.font,
                     Component.translatable("aibuilder.add.step1").withStyle(ChatFormatting.AQUA),
-                    centerX, 25, 0xFFFFFF);
+                    centerX, 25, textColor);
         }
 
-        // 状态消息
         if (!statusMessage.getString().isEmpty()) {
             context.centeredText(this.font,
                     statusMessage.copy().withStyle(statusFormat),
-                    centerX, this.height - 20, 0xFFFFFF);
+                    centerX, this.height - 20, textColor);
         }
     }
 

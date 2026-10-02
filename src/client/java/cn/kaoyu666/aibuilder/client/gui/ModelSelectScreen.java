@@ -77,18 +77,19 @@ public class ModelSelectScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        extractBackground(context, mouseX, mouseY, delta);
+        // Background is extracted by the game separately — do not call extractBackground here
         super.extractRenderState(context, mouseX, mouseY, delta);
 
         int centerX = this.width / 2;
+        int textColor = 0xFFFFFFFF; // ARGB; 0xFFFFFF has alpha 0 and is invisible
 
         context.centeredText(this.font,
                 Component.translatable("aibuilder.select.header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
-                centerX, 15, 0xFFFFFF);
+                centerX, 15, textColor);
 
         context.centeredText(this.font,
                 Component.translatable("aibuilder.select.count", models.size()).withStyle(ChatFormatting.GRAY),
-                centerX, 28, 0xFFFFFF);
+                centerX, 28, textColor);
     }
 
     @Override

@@ -15,6 +15,8 @@ import java.util.List;
  * 显示已添加的模型列表，提供添加/删除/选择模型和退出功能
  */
 public class AIBuilderConfigScreen extends Screen {
+    private static final int TEXT_WHITE = 0xFFFFFFFF;
+
     private final Screen parent;
     private int scrollOffset = 0;
 
@@ -25,9 +27,6 @@ public class AIBuilderConfigScreen extends Screen {
 
     @Override
     protected void init() {
-        super.init();
-        clearWidgets();
-
         int centerX = this.width / 2;
         int startY = 40;
         int buttonWidth = 200;
@@ -66,7 +65,7 @@ public class AIBuilderConfigScreen extends Screen {
             // 选择按钮
             addRenderableWidget(Button.builder(btnText, btn -> {
                         AIModelConfig.getInstance().setActiveModelIndex(index);
-                        init(); // 刷新界面
+                        rebuildWidgets();
                     })
                     .bounds(centerX - buttonWidth / 2 - 30, y, buttonWidth - 20, buttonHeight)
                     .build());
@@ -76,7 +75,10 @@ public class AIBuilderConfigScreen extends Screen {
                             Component.literal("✕").withStyle(ChatFormatting.RED),
                             btn -> {
                                 AIModelConfig.getInstance().removeModel(index);
-                                init(); // 刷新界面
+                                if (scrollOffset > 0 && scrollOffset >= AIModelConfig.getInstance().getModels().size()) {
+                                    scrollOffset = Math.max(0, scrollOffset - maxVisible);
+                                }
+                                rebuildWidgets();
                             })
                     .bounds(centerX + buttonWidth / 2 - 20, y, 30, buttonHeight)
                     .build());
@@ -87,13 +89,13 @@ public class AIBuilderConfigScreen extends Screen {
             int navY = listStartY + maxVisible * spacing + 5;
             addRenderableWidget(Button.builder(Component.translatable("aibuilder.ui.prev_page"), btn -> {
                         scrollOffset = Math.max(0, scrollOffset - maxVisible);
-                        init();
+                        rebuildWidgets();
                     })
                     .bounds(centerX - buttonWidth - 5, navY, buttonWidth, buttonHeight)
                     .build());
             addRenderableWidget(Button.builder(Component.translatable("aibuilder.ui.next_page"), btn -> {
                         scrollOffset = Math.min(models.size() - maxVisible, scrollOffset + maxVisible);
-                        init();
+                        rebuildWidgets();
                     })
                     .bounds(centerX + 5, navY, buttonWidth, buttonHeight)
                     .build());
@@ -109,32 +111,32 @@ public class AIBuilderConfigScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-        extractBackground(context, mouseX, mouseY, delta);
+        // super renders background + widgets; do not call extractBackground separately
         super.extractRenderState(context, mouseX, mouseY, delta);
 
         int centerX = this.width / 2;
 
-        // 标题
+        // 标题 — ARGB required (0xFFFFFF has alpha 0 and is invisible)
         context.centeredText(this.font,
                 Component.translatable("aibuilder.config.header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD),
-                centerX, 15, 0xFFFFFF);
+                centerX, 15, TEXT_WHITE);
 
         // 当前激活模型提示
         ModelConfig active = AIModelConfig.getInstance().getActiveModel();
         if (active != null) {
             context.centeredText(this.font,
                     Component.translatable("aibuilder.config.current", active.getName()).withStyle(ChatFormatting.AQUA),
-                    centerX, this.height - 50, 0xFFFFFF);
+                    centerX, this.height - 50, TEXT_WHITE);
         }
 
         // 无模型提示
         if (AIModelConfig.getInstance().getModels().isEmpty()) {
             context.centeredText(this.font,
                     Component.translatable("aibuilder.config.empty").withStyle(ChatFormatting.GRAY),
-                    centerX, this.height / 2 - 20, 0xFFFFFF);
+                    centerX, this.height / 2 - 20, TEXT_WHITE);
             context.centeredText(this.font,
                     Component.translatable("aibuilder.config.empty_hint").withStyle(ChatFormatting.DARK_GRAY),
-                    centerX, this.height / 2, 0xFFFFFF);
+                    centerX, this.height / 2, TEXT_WHITE);
         }
     }
 
